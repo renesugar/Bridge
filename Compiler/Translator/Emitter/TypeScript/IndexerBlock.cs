@@ -36,6 +36,11 @@ namespace Bridge.Translator.TypeScript
                 var ignoreInterface = isInterface &&
                                       memberResult.Member.DeclaringType.TypeParameterCount > 0;
 
+                if (!isInterface && memberResult.Member.IsExplicitInterfaceImplementation)
+                {
+                    return;
+                }
+
                 this.WriteAccessor(indexerDeclaration, setter, ignoreInterface);
 
                 if (!ignoreInterface && isInterface)
@@ -47,8 +52,13 @@ namespace Bridge.Translator.TypeScript
 
         private void WriteAccessor(IndexerDeclaration indexerDeclaration, bool setter, bool ignoreInterface)
         {
-            XmlToJsDoc.EmitComment(this, this.IndexerDeclaration, !setter);
             string name = Helpers.GetPropertyRef(this.IndexerDeclaration, this.Emitter, setter, false, ignoreInterface);
+            if (name.Contains("\""))
+            {
+                return;
+            }
+
+            XmlToJsDoc.EmitComment(this, this.IndexerDeclaration, !setter);
             this.Write(name);
 
             this.EmitMethodParameters(indexerDeclaration.Parameters, null, indexerDeclaration, setter);

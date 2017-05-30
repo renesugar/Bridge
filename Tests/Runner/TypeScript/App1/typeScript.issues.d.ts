@@ -113,6 +113,16 @@ declare module TypeScript.Issues {
     }
     var N2653Zig: N2653ZigFunc;
 
+    export interface N2736_Number$1<T> extends TypeScript.Issues.N2736_INumber$1<T> {
+    }
+    export interface N2736_Number$1Func extends Function {
+        <T>($T: Bridge.TypeRef<T>): {
+            prototype: N2736_Number$1<T>;
+            new (): N2736_Number$1<T>;
+        }
+    }
+    var N2736_Number$1: N2736_Number$1Func;
+
     export interface N3061 {
     }
     export interface N3061Func extends Function {
@@ -174,10 +184,14 @@ declare module TypeScript.Issues {
     }
     var N2911: N2911Func;
 
-    export interface N2653IZig {
-        TypeScript$Issues$N2653IZig$zag(): number;
-        zag(): number;
+    export interface N2661C {
+        fn: {(x: TypeScript.Issues.N2661C): Function};
     }
+    export interface N2661CFunc extends Function {
+        prototype: N2661C;
+        new (): N2661C;
+    }
+    var N2661C: N2661CFunc;
 
     export interface N2264 {
         Values: System.Collections.Generic.IEnumerable$1<string>;
@@ -204,6 +218,17 @@ declare module TypeScript.Issues {
     }
     var N2438: N2438Func;
 
+    export interface N2463 {
+    }
+    export interface N2463Func extends Function {
+        prototype: N2463;
+        new (): N2463;
+        Do(dummy: {Nothing: number}): {Nothing: number};
+    }
+    var N2463: N2463Func;
+    module N2463 {
+    }
+
     export interface N2474 {
     }
     export interface N2474Func extends Function {
@@ -212,12 +237,12 @@ declare module TypeScript.Issues {
         NameEnum: N2474.NameEnumFunc;
         NameLowerCase: N2474.NameLowerCaseFunc;
         NamePreserveCase: N2474.NamePreserveCaseFunc;
-        NameUpperCase: N2474.NameUpperCaseFunc;
         StringName: N2474.StringNameFunc;
         StringNameLowerCase: N2474.StringNameLowerCaseFunc;
         StringNamePreserveCase: N2474.StringNamePreserveCaseFunc;
         StringNameUpperCase: N2474.StringNameUpperCaseFunc;
         ValueEnum: N2474.ValueEnumFunc;
+        NameUpperCase: N2474.NameUpperCaseFunc;
         new (): N2474;
     }
     var N2474: N2474Func;
@@ -248,13 +273,6 @@ declare module TypeScript.Issues {
         export interface NamePreserveCaseFunc extends Function {
             prototype: NamePreserveCase;
             Value: number;
-        }
-
-        export interface NameUpperCase {
-        }
-        export interface NameUpperCaseFunc extends Function {
-            prototype: NameUpperCase;
-            VALUE: number;
         }
 
         export interface StringName {
@@ -291,6 +309,17 @@ declare module TypeScript.Issues {
             prototype: ValueEnum;
             Value: number;
         }
+
+        export interface NameUpperCase {
+        }
+        export interface NameUpperCaseFunc extends Function {
+            prototype: NameUpperCase;
+            VALUE: number;
+        }
+    }
+
+    export interface N2736_INumber$1<T> {
+        GetNumber(): T;
     }
 
     export interface N2029Interface$1<T> {
@@ -306,23 +335,9 @@ declare module TypeScript.Issues {
     }
     var N2493Operation3: N2493Operation3Func;
 
-    export interface N2661C {
-        fn: {(x: TypeScript.Issues.N2661C): Function};
+    export interface N2653IZig {
+        TypeScript$Issues$N2653IZig$zag(): number;
+        zag(): number;
     }
-    export interface N2661CFunc extends Function {
-        prototype: N2661C;
-        new (): N2661C;
-    }
-    var N2661C: N2661CFunc;
 
-    export interface N2463 {
-    }
-    export interface N2463Func extends Function {
-        prototype: N2463;
-        new (): N2463;
-        Do(dummy: {Nothing: number}): {Nothing: number};
-    }
-    var N2463: N2463Func;
-    module N2463 {
-    }
 }

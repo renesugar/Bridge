@@ -271,6 +271,11 @@ Bridge.assembly("TypeScriptTest", function ($asm, globals) {
         }
     });
 
+    Bridge.definei("TypeScript.Issues.N2736_INumber$1", function (T) { return {
+        $kind: "interface",
+        $variance: [1]
+    }; });
+
     Bridge.define("TypeScript.Issues.N2911", {
         statics: {
             methods: {
@@ -327,6 +332,16 @@ Bridge.assembly("TypeScriptTest", function ($asm, globals) {
             }
         }
     });
+
+    Bridge.define("TypeScript.Issues.N2736_Number$1", function (T) { return {
+        inherits: [TypeScript.Issues.N2736_INumber$1(T)],
+        alias: ["TypeScript$Issues$N2736_INumber$1$GetNumber", "TypeScript$Issues$N2736_INumber$1$" + Bridge.getTypeAlias(T) + "$GetNumber"],
+        methods: {
+            TypeScript$Issues$N2736_INumber$1$GetNumber: function () {
+                return Bridge.getDefaultValue(T);
+            }
+        }
+    }; });
 
     Bridge.define("TypeScript.Issues.N3061.Car", {
         inherits: function () { return [TypeScript.Issues.N3061.IVehicle,System.IEquatable$1(TypeScript.Issues.N3061.Car)]; },

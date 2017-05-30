@@ -1,15 +1,6 @@
 /// <reference path="./bridge.d.ts" />
 
 declare module Misc.A {
-    export interface Class1 {
-        GetInt(i: number): number;
-    }
-    export interface Class1Func extends Function {
-        prototype: Class1;
-        new (): Class1;
-    }
-    var Class1: Class1Func;
-
     export interface EnumTest {
         DoSomething(m: number): number;
     }
@@ -28,5 +19,14 @@ declare module Misc.A {
             M2: number;
         }
     }
+
+    export interface Class1 {
+        GetInt(i: number): number;
+    }
+    export interface Class1Func extends Function {
+        prototype: Class1;
+        new (): Class1;
+    }
+    var Class1: Class1Func;
 
 }

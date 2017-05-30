@@ -140,6 +140,7 @@ QUnit.test("#2661", function (assert) {
     var fn2 = c.fn(c);
     assert.equal(fn1, fn2);
 });
+<<<<<<< HEAD
 QUnit.test("#2911", function (assert) {
     var initButton = document.createElement("button");
     initButton.onclick = TypeScript.Issues.N2911.initButton_Clicked;
@@ -164,4 +165,10 @@ QUnit.test("#3061 IEquatable", function (assert) {
     t2.Horses = 501;
     assert.notOk(t1.equalsT(t2));
     assert.notOk(t1.equalsT$1(t2));
+=======
+QUnit.test("#2736", function (assert) {
+    var n = new (TypeScript.Issues.N2736_Number$1(Number));
+    var i = n.GetNumber();
+    assert.equal(i, 0);
+>>>>>>> [2736] TypeScript test
 });

@@ -34,11 +34,6 @@ namespace Bridge.Translator.TypeScript
                 var isInterface = memberResult.Member.DeclaringType.Kind == TypeKind.Interface;
                 var ignoreInterface = isInterface && memberResult.Member.DeclaringType.TypeParameterCount > 0;
 
-                if (!isInterface && memberResult.Member.IsExplicitInterfaceImplementation)
-                {
-                    return;
-                }
-
                 var name = Helpers.GetEventRef(customEventDeclaration, this.Emitter, remover, false, ignoreInterface);
 
                 if (name.Contains("\""))

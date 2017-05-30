@@ -43,11 +43,6 @@ namespace Bridge.Translator.TypeScript
                 var ignoreInterface = isInterface &&
                                       memberResult.Member.DeclaringType.TypeParameterCount > 0;
 
-                if (!isInterface && memberResult.Member.IsExplicitInterfaceImplementation)
-                {
-                    return;
-                }
-
                 this.WriteAccessor(propertyDeclaration, memberResult, ignoreInterface);
 
                 if (!ignoreInterface && isInterface)

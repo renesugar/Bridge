@@ -13,7 +13,7 @@ using LanguageVersion = Microsoft.CodeAnalysis.CSharp.LanguageVersion;
 
 namespace Bridge.Translator
 {
-    public class SharpSixRewriter : CSharpSyntaxRewriter
+    public partial class SharpSixRewriter : CSharpSyntaxRewriter
     {
         public const string AutoInitFieldPrefix = "__Property__Initializer__";
 
@@ -23,6 +23,12 @@ namespace Bridge.Translator
         private SemanticModel semanticModel;
         private List<MemberDeclarationSyntax> fields;
         private int tempKey = 1;
+
+        public bool HasLocalFunctions
+        {
+            get;
+            set;
+        }
 
         public SharpSixRewriter(ITranslator translator)
         {
@@ -43,6 +49,18 @@ namespace Bridge.Translator
             var syntaxTree = this.compilation.SyntaxTrees[index];
             this.semanticModel = this.compilation.GetSemanticModel(syntaxTree, true);
             var result = this.Visit(syntaxTree.GetRoot());
+
+            var replacers = new List<ICSharpReplacer>();
+
+            if(this.HasLocalFunctions)
+            {
+                replacers.Add(new LocalFunctionReplacer());
+            }
+
+            foreach (var replacer in replacers)
+            {
+                result = replacer.Replace(result, semanticModel);
+            }
 
             return result.ToFullString();
         }

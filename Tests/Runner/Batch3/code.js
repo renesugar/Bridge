@@ -26369,6 +26369,46 @@ Bridge.$N1391Result =                     r;
      */
     Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3244.A");
 
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3251", {
+        statics: {
+            methods: {
+                TestStructObjectLiteral: function () {
+                    var key = Bridge.ClientTest.Batch3.BridgeIssues.Bridge3251.PlaceKey.$ctor1(0);
+                    Bridge.Test.NUnit.Assert.NotNull(key);
+                }
+            }
+        }
+    });
+
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3251.PlaceKey", {
+        $kind: "struct",
+        $literal: true,
+        statics: {
+            methods: {
+                getDefaultValue: function () { return new Bridge.ClientTest.Batch3.BridgeIssues.Bridge3251.PlaceKey(); }
+            }
+        },
+        ctors: {
+            $ctor1: function (i) {
+                var $this = { };
+                $this.$getType = function () { return Bridge.ClientTest.Batch3.BridgeIssues.Bridge3251.PlaceKey; };
+                (function (){
+                }).call($this);
+                return $this;
+            },
+            ctor: function () {
+                var $this = { };
+                $this.$getType = function () { return Bridge.ClientTest.Batch3.BridgeIssues.Bridge3251.PlaceKey; };
+                (function (){
+                }).call($this);
+                return $this;
+            }
+        },
+        methods: {
+            $clone: function (to) { return this; }
+        }
+    });
+
     Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge341A", {
         props: {
             Str: null

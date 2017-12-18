@@ -247,29 +247,29 @@ namespace Bridge.Translator
                     continue;
                 }
 
-                // Do not resolve again if the reference has already been resolved previously.
-                AssemblyDefinition assemblyReference = References.FirstOrDefault(r => r.FullName == assemblyReferenceName.FullName);
+                AssemblyDefinition assemblyReference = References.Where(r => r.Name.Name == assemblyReferenceName.Name).FirstOrDefault();
 
                 needed_resolve = assemblyReference == default(AssemblyDefinition);
 
                 if (needed_resolve)
                 {
-                    assemblyReference = asm.MainModule.AssemblyResolver.Resolve(assemblyReferenceName);
+                    throw new InvalidOperationException(assemblyReferenceName.Name + " should be already resolved at this point.");
                 }
 
                 if (assemblyReference.MainModule.Kind != ModuleKind.Dll)
                 {
+                    Log.Trace("GetParentAssemblies(): Assembly '" + assemblyReference.FullName + "' is not a DLL assembly.");
                     continue;
                 }
 
                 if (list.All(r => r.FullName != assemblyReference.FullName))
                 {
                     list.Add(assemblyReference);
-                    Log.Trace("GetParentAssemblies(): Assembly '" + assemblyReference.FullName + "' added " + (needed_resolve ? "(reused resolve)" : "(fresh resolve)") + ".");
+                    Log.Trace("GetParentAssemblies(): Assembly '" + assemblyReference.FullName + "' added.");
                 }
                 else
                 {
-                    Log.Trace("GetParentAssemblies(): Assembly '" + assemblyReference.FullName + "' already present " + (needed_resolve ? "(reused resolve)" : "(fresh resolve)") + ".");
+                    Log.Trace("GetParentAssemblies(): Assembly '" + assemblyReference.FullName + "' already present.");
                 }
 
                 GetParentAssemblies(assemblyReference, list);

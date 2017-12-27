@@ -1,6 +1,6 @@
 /// <reference path="./bridge.d.ts" />
 
-declare module Classes {
+declare namespace Classes {
     export interface Animal {
         GetName(): string;
         Move(): number;
@@ -24,7 +24,6 @@ declare module Classes {
     export interface MovePointFunc extends Function {
         prototype: MovePoint;
         new (): MovePoint;
-        Move(p: Classes.Point, dx: number, dy: number): Classes.Point;
     }
     var MovePoint: MovePointFunc;
 

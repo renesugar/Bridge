@@ -1,6 +1,6 @@
 /// <reference path="./bridge.d.ts" />
 
-declare module Generics {
+declare namespace Generics {
     export interface GenericINamedEntity$1<T> {
         Instance: T;
         GetSomething(input: T): T;
@@ -100,7 +100,6 @@ declare module Generics {
     var GenericNew$1: GenericNew$1Func;
 
     export interface INamedEntity {
-        Name: string;
     }
     export interface INamedEntityFunc extends Function {
         prototype: INamedEntity;

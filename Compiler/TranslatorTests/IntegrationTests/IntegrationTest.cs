@@ -323,6 +323,7 @@ namespace Bridge.Translator.Tests
         /// </remarks>
         /// <param name="folder"></param>
         /// <param name="isToBuild"></param>
+        [TestCase("01", false, TestName = "IntegrationTest 01 - Module set via assembly and bridge.json produces same output.")]
         public void CompareProjects(string folder, bool isToBuild)
         {
             var projectFileName = "test" + ".csproj";

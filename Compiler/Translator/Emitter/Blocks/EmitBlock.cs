@@ -380,7 +380,7 @@ namespace Bridge.Translator
                         metas.Add(type.Type, meta);
                     }
                 }
-            }            
+            }
 
             foreach (var reflectedType in reflectedTypes)
             {

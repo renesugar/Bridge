@@ -411,6 +411,10 @@
                 Class.$metadata = prop.$metadata;
             }
 
+            if (prop.$metadata) {
+                Class.$metadata = prop.$metadata;
+            }
+
             if (gCfg && isGenericInstance) {
                 Class.$genericTypeDefinition = gCfg.fn;
                 Class.$typeArguments = gCfg.args;
@@ -990,7 +994,7 @@
                         Bridge.setMetadata(item.typeName, item.metadata);
                     }
                 }
-            }            
+            }
 
             if (fn) {
                 var old = Bridge.Class.staticInitAllow;

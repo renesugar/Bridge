@@ -55,6 +55,11 @@ namespace Bridge.Translator
             {
                 replacers.Add(new ChainingAssigmentReplacer());
             }
+
+            if (this.hasStaticUsingOrAliases)
+            {
+                replacers.Add(new UsingStaticReplacer());
+            }
             
             foreach (var replacer in replacers)
             {
@@ -400,7 +405,7 @@ namespace Bridge.Translator
             if (node.StaticKeyword.RawKind == (int)SyntaxKind.StaticKeyword)
             {
                 this.hasStaticUsingOrAliases = true;
-                return null;
+                //return SyntaxFactory.EmptyStatement().WithLeadingTrivia(node.GetLeadingTrivia());
             }
             if (node.Alias != null)
             {

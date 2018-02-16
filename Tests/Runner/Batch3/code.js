@@ -29172,6 +29172,27 @@ Bridge.$N1391Result =                     r;
         }
     });
 
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3421", {
+        statics: {
+            methods: {
+                TestUsingStaticWithDirective: function () {
+                    Bridge.Test.NUnit.Assert.AreEqual(7, Bridge.ClientTest.Batch3.BridgeIssues.Bridge3421.Logger.Log("Success"));
+                }
+            }
+        }
+    });
+
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3421.Logger", {
+        $kind: "nested class",
+        statics: {
+            methods: {
+                Log: function (msg) {
+                    return msg.length;
+                }
+            }
+        }
+    });
+
     Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge381", {
         statics: {
             methods: {

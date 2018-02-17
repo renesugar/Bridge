@@ -27,10 +27,10 @@ var Bridge3001_SomeLib = (function () {
 
 /**
  * Bridge Test library - test github issues up to #1999
- * @version 16.7.2
+ * @version 16.8.0
  * @author Object.NET, Inc.
  * @copyright Copyright 2008-2018 Object.NET, Inc.
- * @compiler Bridge.NET 16.7.2
+ * @compiler Bridge.NET 16.8.0
  */
 Bridge.assembly("Bridge.ClientTest.Batch3", function ($asm, globals) {
     "use strict";
@@ -4306,7 +4306,7 @@ Bridge.assembly("Bridge.ClientTest.Batch3", function ($asm, globals) {
                                     $step = System.Array.min([0,1], $step);
                                     switch ($step) {
                                         case 0: {
-                                            $task1 = System.Threading.Tasks.Task.fromResult(10);
+                                            $task1 = System.Threading.Tasks.Task.fromResult(10, System.Int32);
                                             $step = 1;
                                             $task1.continueWith($asyncBody);
                                             return;
@@ -4346,7 +4346,7 @@ Bridge.assembly("Bridge.ClientTest.Batch3", function ($asm, globals) {
                                     $step = System.Array.min([0,1], $step);
                                     switch ($step) {
                                         case 0: {
-                                            $task1 = System.Threading.Tasks.Task.fromResult(($t = new Bridge.ClientTest.Batch3.BridgeIssues.Bridge1305.DataClass(), $t.Value = 11, $t));
+                                            $task1 = System.Threading.Tasks.Task.fromResult(($t = new Bridge.ClientTest.Batch3.BridgeIssues.Bridge1305.DataClass(), $t.Value = 11, $t), Bridge.ClientTest.Batch3.BridgeIssues.Bridge1305.DataClass);
                                             $step = 1;
                                             $task1.continueWith($asyncBody);
                                             return;
@@ -4386,7 +4386,7 @@ Bridge.assembly("Bridge.ClientTest.Batch3", function ($asm, globals) {
                                     $step = System.Array.min([0,1], $step);
                                     switch ($step) {
                                         case 0: {
-                                            $task1 = System.Threading.Tasks.Task.fromResult(($t = new Bridge.ClientTest.Batch3.BridgeIssues.Bridge1305.DataStruct(), $t.Value = 12, $t));
+                                            $task1 = System.Threading.Tasks.Task.fromResult(($t = new Bridge.ClientTest.Batch3.BridgeIssues.Bridge1305.DataStruct(), $t.Value = 12, $t), Bridge.ClientTest.Batch3.BridgeIssues.Bridge1305.DataStruct);
                                             $step = 1;
                                             $task1.continueWith($asyncBody);
                                             return;
@@ -18004,7 +18004,7 @@ Bridge.$N1391Result =                     r;
                                             result.add("xxx");
                                             result.add("yyy");
 
-                                            $task1 = System.Threading.Tasks.Task.fromResult(result);
+                                            $task1 = System.Threading.Tasks.Task.fromResult(result, Bridge.global.System.Collections.Generic.List$1(System.String));
                                             $step = 1;
                                             $task1.continueWith($asyncBody);
                                             return;
@@ -18244,7 +18244,7 @@ Bridge.$N1391Result =                     r;
         statics: {
             methods: {
                 bug6_m: function () {
-                    return System.Threading.Tasks.Task.fromResult("a");
+                    return System.Threading.Tasks.Task.fromResult("a", System.String);
                 },
                 bug6: function () {
                     var $step = 0,
@@ -28979,6 +28979,63 @@ Bridge.$N1391Result =                     r;
     });
 
     /**
+     * The test here consists in checking whether copyTo works for dictionary
+     when its keys are instances of a class or complex structure.
+     *
+     * @public
+     * @class Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408
+     */
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408", {
+        statics: {
+            methods: {
+                /**
+                 * The tests just creates an instance of a dictionary with an
+                 empty-bodied class as its keys, adds entries then copies to a
+                 simple array, then checks whether the value in the array is the
+                 expected one.
+                 *
+                 * @static
+                 * @public
+                 * @this Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408
+                 * @memberof Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408
+                 * @return  {void}
+                 */
+                TestCpxDicCopyTo: function () {
+                    var cpx = new (System.Collections.Generic.Dictionary$2(Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C,System.Int32))();
+
+                    cpx.add(new Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C(), 5);
+                    cpx.add(new Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C(), 7);
+                    cpx.add(new Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C(), 3);
+
+                    var cpa = System.Array.init(3, 0, System.Int32);
+                    System.Array.copyTo(cpx.getValues(), cpa, 0, System.Int32);
+
+                    Bridge.Test.NUnit.Assert.AreEqual(5, cpa[System.Array.index(0, cpa)], "First element extracted matches.");
+                    Bridge.Test.NUnit.Assert.AreEqual(7, cpa[System.Array.index(1, cpa)], "Second element extracted matches.");
+                    Bridge.Test.NUnit.Assert.AreEqual(3, cpa[System.Array.index(2, cpa)], "Third element extracted matches.");
+
+                    var cpk = System.Array.init(3, null, Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C);
+                    System.Array.copyTo(cpx.getKeys(), cpk, 0, Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C);
+
+                    Bridge.Test.NUnit.Assert.True(Bridge.hasValue(cpk[System.Array.index(0, cpk)]), "First key extracted matches.");
+                    Bridge.Test.NUnit.Assert.True(Bridge.hasValue(cpk[System.Array.index(1, cpk)]), "Second key extracted matches.");
+                    Bridge.Test.NUnit.Assert.True(Bridge.hasValue(cpk[System.Array.index(2, cpk)]), "Third key extracted matches.");
+                }
+            }
+        }
+    });
+
+    /**
+     * A dummy class to serve as a "complex" key for the test dictionary.
+     *
+     * @private
+     * @class Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C
+     */
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3408.C", {
+        $kind: "nested class"
+    });
+
+    /**
      * The test here consists in checking whether Convert.ToString(x) acts
      identically to x.ToString(), considering overrridden ToString() method
      when it applies.
@@ -29047,6 +29104,74 @@ Bridge.$N1391Result =                     r;
             toString: function () {
                 return (this.Value || "") + " constant value.";
             }
+        }
+    });
+
+    /** @namespace System */
+
+    /**
+     * @memberof System
+     * @callback System.Action
+     * @return  {void}
+     */
+
+    /**
+     * The test here consists in checking whether templates on events would
+     replace the {value} placeholder even if the {this} placeholder is not
+     specified.
+     *
+     * @public
+     * @class Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418
+     */
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418", {
+        statics: {
+            methods: {
+                Handler: function () { },
+                /**
+                 * Instantiate the class and check whether the template code produces
+                 the expected side effects in the environment.
+                 *
+                 * @static
+                 * @public
+                 * @this Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418
+                 * @memberof Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418
+                 * @return  {void}
+                 */
+                TestEventTemplate: function () {
+                    var expected = "Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418.Handler";
+
+                    var program = new Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418();
+                    program.status = "none";
+                    Bridge.Test.NUnit.Assert.AreEqual("none", program.status, "Status variable reads 'none'.");
+
+                    program.status = 'Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418.Handler+';;
+                    Bridge.Test.NUnit.Assert.AreEqual((expected || "") + "+", program.status, "Template applied correctly for event.add().");
+
+                    program.status = 'Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418.Handler-';;
+                    Bridge.Test.NUnit.Assert.AreEqual((expected || "") + "-", program.status, "Template applied correctly for event.remove().");
+                }
+            }
+        },
+        props: {
+            status: null
+        },
+        methods: {
+            /**
+             * @instance
+             * @public
+             * @memberof Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418
+             * @event Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418#OnDragEnd
+             * @return  {System.Action}
+             */
+            addOnDragEnd: function (value) { },
+            /**
+             * @instance
+             * @public
+             * @memberof Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418
+             * @event Bridge.ClientTest.Batch3.BridgeIssues.Bridge3418#OnDragEnd
+             * @return  {System.Action}
+             */
+            removeOnDragEnd: function (value) { }
         }
     });
 
@@ -29168,6 +29293,68 @@ Bridge.$N1391Result =                     r;
             },
             contains: function (item) {
                 return System.Array.contains(Bridge.cast(this._backingDictionary, System.Collections.Generic.ICollection$1(System.Collections.Generic.KeyValuePair$2(System.Int32,System.String))), item, System.Collections.Generic.KeyValuePair$2(System.Int32,System.String));
+            }
+        }
+    });
+
+    /**
+     * The test here consists in checking whether Task.FromResult() returns
+     a generics instance of System.Threading.Tasks, so that it can be
+     cast into non-generics then back to the generics version.
+     *
+     * @public
+     * @class Bridge.ClientTest.Batch3.BridgeIssues.Bridge3420
+     */
+    Bridge.define("Bridge.ClientTest.Batch3.BridgeIssues.Bridge3420", {
+        statics: {
+            methods: {
+                /**
+                 * Call Task.FromResult() casting to non-generics Task and try to cast
+                 it back to the generics, thus being able to fetch the result value
+                 fed to FromResult().
+                 *
+                 * @static
+                 * @public
+                 * @this Bridge.ClientTest.Batch3.BridgeIssues.Bridge3420
+                 * @memberof Bridge.ClientTest.Batch3.BridgeIssues.Bridge3420
+                 * @return  {void}
+                 */
+                TestTaskFromResult: function () {
+                    var $step = 0,
+                        $task1, 
+                        $taskResult1, 
+                        $jumpFromFinally, 
+                        done, 
+                        t, 
+                        t2, 
+                        $asyncBody = Bridge.fn.bind(this, function () {
+                            for (;;) {
+                                $step = System.Array.min([0,1], $step);
+                                switch ($step) {
+                                    case 0: {
+                                        done = Bridge.Test.NUnit.Assert.Async();
+                                        t = System.Threading.Tasks.Task.fromResult(3, System.Int32);
+                                        t2 = Bridge.cast(t, System.Threading.Tasks.Task$1(System.Int32));
+                                        $task1 = t2;
+                                        $step = 1;
+                                        $task1.continueWith($asyncBody, true);
+                                        return;
+                                    }
+                                    case 1: {
+                                        $taskResult1 = $task1.getAwaitedResult();
+                                        Bridge.Test.NUnit.Assert.AreEqual(3, $taskResult1, "The task result matches the expected value.");
+                                        done();
+                                        return;
+                                    }
+                                    default: {
+                                        return;
+                                    }
+                                }
+                            }
+                        }, arguments);
+
+                    $asyncBody();
+                }
             }
         }
     });
@@ -34559,7 +34746,7 @@ Bridge.$N1391Result =                     r;
                                             continue;
                                         }
                                         case 1: {
-                                            task = System.Threading.Tasks.Task.fromResult(new System.Exception("Success"));
+                                            task = System.Threading.Tasks.Task.fromResult(new System.Exception("Success"), Bridge.global.System.Exception);
                                             if (throwException) {
                                                 throw new System.Exception("test");
                                             }
@@ -35823,7 +36010,7 @@ Bridge.$N1391Result =                     r;
                                     $step = System.Array.min([0,1], $step);
                                     switch ($step) {
                                         case 0: {
-                                            $task1 = System.Threading.Tasks.Task.fromResult(1);
+                                            $task1 = System.Threading.Tasks.Task.fromResult(1, System.Int32);
                                             $step = 1;
                                             $task1.continueWith($asyncBody);
                                             return;
@@ -39978,8 +40165,6 @@ Bridge.$N1391Result =                     r;
         },
         alias: ["Value", "Bridge$ClientTest$Batch3$BridgeIssues$Bridge3222$IProperty$1$" + Bridge.getTypeAlias(T) + "$Value$1"]
     }; });
-
-    /** @namespace System */
 
     /**
      * @memberof System

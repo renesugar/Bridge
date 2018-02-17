@@ -405,7 +405,6 @@ namespace Bridge.Translator
             if (node.StaticKeyword.RawKind == (int)SyntaxKind.StaticKeyword)
             {
                 this.hasStaticUsingOrAliases = true;
-                //return SyntaxFactory.EmptyStatement().WithLeadingTrivia(node.GetLeadingTrivia());
             }
             if (node.Alias != null)
             {

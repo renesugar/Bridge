@@ -99,7 +99,7 @@ namespace Bridge.Translator
         public void Translate()
         {
             var logger = this.Log;
-            logger.Info("Translating...");            
+            logger.Info("Translating...");
 
             var config = this.AssemblyInfo;
 
@@ -175,6 +175,19 @@ namespace Bridge.Translator
             emitter.Log = this.Log;
             emitter.Plugins = this.Plugins;
             emitter.InitialLevel = 1;
+
+            if (this.AssemblyInfo.Module != null)
+            {
+                this.AssemblyInfo.Module.Emitter = emitter;
+            }
+
+            foreach(var td in this.TypeInfoDefinitions)
+            {
+                if (td.Value.Module != null)
+                {
+                    td.Value.Module.Emitter = emitter;
+                }
+            }
 
             this.SortReferences();
 

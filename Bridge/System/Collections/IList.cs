@@ -1,14 +1,12 @@
-using Bridge;
-
 namespace System.Collections
 {
     /// <summary>
     /// Represents a non-generic collection of objects that can be individually accessed
     /// by index.
     /// </summary>
-    [External]
-    [Convention(Target = ConventionTarget.Member, Member = ConventionMember.Method, Notation = Notation.LowerCamelCase)]
-    [Reflectable]
+    [Bridge.External]
+    [Bridge.Convention(Target = Bridge.ConventionTarget.Member, Member = Bridge.ConventionMember.Method, Notation = Bridge.Notation.CamelCase)]
+    [Bridge.Reflectable]
     public interface IList : ICollection, IEnumerable
     {
         /// <summary>
@@ -26,12 +24,12 @@ namespace System.Collections
         /// <exception cref="System.NotSupportedException">
         /// The property is set and the System.Collections.IList is read-only.
         /// </exception>
-        [Unbox(false)]
+        [Bridge.Unbox(false)]
         object this[int index]
         {
-            [Template("System.Array.getItem({this}, {0})")]
+            [Bridge.Template("System.Array.getItem({this}, {0})")]
             get;
-            [Template("System.Array.setItem({this}, {0})")]
+            [Bridge.Template("System.Array.setItem({this}, {0})")]
             set;
         }
 
@@ -43,7 +41,7 @@ namespace System.Collections
         /// </returns>
         bool IsReadOnly
         {
-            [Template("System.Array.getIsReadOnly({this})")]
+            [Bridge.Template("System.Array.getIsReadOnly({this}, Object)")]
             get;
         }
 
@@ -53,7 +51,11 @@ namespace System.Collections
         /// <returns>
         /// true if the System.Collections.IList has a fixed size; otherwise, false.
         /// </returns>
-        bool IsFixedSize { get; }
+        bool IsFixedSize
+        {
+            [Bridge.Template("System.Array.isFixedSize({this})")]
+            get;
+        }
 
         /// <summary>
         /// Adds an item to the System.Collections.IList.
@@ -69,8 +71,8 @@ namespace System.Collections
         /// The System.Collections.IList is read-only.-or- The System.Collections.IList has
         /// a fixed size.
         /// </exception>
-        [Template("System.Array.add({this}, {value})")]
-        [Unbox(false)]
+        [Bridge.Template("System.Array.add({this}, {value}, Object)")]
+        [Bridge.Unbox(false)]
         int Add(object value);
 
         /// <summary>
@@ -79,7 +81,7 @@ namespace System.Collections
         /// <exception cref="System.NotSupportedException">
         /// The System.Collections.IList is read-only.
         /// </exception>
-        [Template("System.Array.clear({this})")]
+        [Bridge.Template("System.Array.clear({this}, Object)")]
         void Clear();
 
         /// <summary>
@@ -92,7 +94,7 @@ namespace System.Collections
         /// true if the System.Object is found in the System.Collections.IList; otherwise,
         /// false.
         /// </returns>
-        [Template("System.Array.contains({this}, {value})")]
+        [Bridge.Template("System.Array.contains({this}, {value})")]
         bool Contains(object value);
 
         /// <summary>
@@ -104,7 +106,7 @@ namespace System.Collections
         /// <returns>
         /// The index of value if found in the list; otherwise, -1.
         /// </returns>
-        [Template("System.Array.indexOf({this}, {value}, 0, null)")]
+        [Bridge.Template("System.Array.indexOf({this}, {value}, 0, null)")]
         int IndexOf(object value);
 
         /// <summary>
@@ -126,8 +128,8 @@ namespace System.Collections
         /// <exception cref="System.NullReferenceException">
         /// value is null reference in the System.Collections.IList.
         /// </exception>
-        [Template("System.Array.insert({this}, {index}, {value})")]
-        [Unbox(false)]
+        [Bridge.Template("System.Array.insert({this}, {index}, {value}, Object)")]
+        [Bridge.Unbox(false)]
         void Insert(int index, object value);
 
         /// <summary>
@@ -140,7 +142,7 @@ namespace System.Collections
         /// The System.Collections.IList is read-only.-or- The System.Collections.IList has
         /// a fixed size.
         /// </exception>
-        [Template("System.Array.remove({this}, {value})")]
+        [Bridge.Template("System.Array.remove({this}, {value}, Object)")]
         void Remove(object value);
 
         /// <summary>
@@ -154,8 +156,9 @@ namespace System.Collections
         /// </exception>
         /// <exception cref="System.NotSupportedException">
         /// The System.Collections.IList is read-only.-or- The System.Collections.IList has
-        /// a fixed size.        [Template("System.Array.removeAt({this}, {index})")]
+        /// a fixed size.        [Bridge.Template("System.Array.removeAt({this}, {index})")]
         /// </exception>
+        [Bridge.Template("System.Array.removeAt({this}, {index}, Object)")]
         void RemoveAt(int index);
     }
 }

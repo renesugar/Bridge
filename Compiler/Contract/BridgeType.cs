@@ -439,7 +439,7 @@ namespace Bridge.Contract
                 else
                 {
                     name = BridgeTypes.AddModule(name, bridgeType, excludens, isNested, out isCustomName);
-                }                
+                }
             }
 
             var tDef = type.GetDefinition();
@@ -624,15 +624,23 @@ namespace Bridge.Contract
             var def = type.Type.GetDefinition();
             if (def != null && type.Module == null)
             {
-                if (def.Attributes.Count > 0)
-                {
-                    var attr = def.Attributes.FirstOrDefault(a => a.AttributeType.FullName == "Bridge.ModuleAttribute");
+                var typeDef = def;
 
-                    if (attr != null)
+                do
+                {
+                    if (typeDef.Attributes.Count > 0)
                     {
-                        BridgeTypes.ReadModuleFromAttribute(type, attr);
+                        var attr = typeDef.Attributes.FirstOrDefault(a => a.AttributeType.FullName == "Bridge.ModuleAttribute");
+
+                        if (attr != null)
+                        {
+                            BridgeTypes.ReadModuleFromAttribute(type, attr);
+                        }
                     }
+
+                    typeDef = typeDef.DeclaringTypeDefinition;
                 }
+                while (typeDef != null && type.Module == null);                
 
                 if (type.Module == null)
                 {
@@ -661,19 +669,19 @@ namespace Bridge.Contract
 
                 if (obj is bool)
                 {
-                    module = new Module((bool)obj);
+                    module = new Module((bool)obj, type.Emitter);
                 }
                 else if (obj is string)
                 {
-                    module = new Module(obj.ToString());
+                    module = new Module(obj.ToString(), type.Emitter);
                 }
                 else if (obj is int)
                 {
-                    module = new Module("", (ModuleType) (int) obj);
+                    module = new Module("", (ModuleType) (int) obj, type.Emitter);
                 }
                 else
                 {
-                    module = new Module();
+                    module = new Module(type.Emitter);
                 }
             }
             else if (attr.PositionalArguments.Count == 2)
@@ -683,21 +691,21 @@ namespace Bridge.Contract
                     var name = attr.PositionalArguments[0].ConstantValue;
                     var preventName = attr.PositionalArguments[1].ConstantValue;
 
-                    module = new Module(name != null ? name.ToString() : "", (bool)preventName);
+                    module = new Module(name != null ? name.ToString() : "", type.Emitter, (bool)preventName);
                 }
                 else if (attr.PositionalArguments[1].ConstantValue is bool)
                 {
                     var mtype = attr.PositionalArguments[0].ConstantValue;
                     var preventName = attr.PositionalArguments[1].ConstantValue;
 
-                    module = new Module("", (ModuleType)(int)mtype, (bool)preventName);
+                    module = new Module("", (ModuleType)(int)mtype, type.Emitter,(bool)preventName);
                 }
                 else
                 {
                     var mtype = attr.PositionalArguments[0].ConstantValue;
                     var name = attr.PositionalArguments[1].ConstantValue;
 
-                    module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype);
+                    module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype, type.Emitter);
                 }
             }
             else if (attr.PositionalArguments.Count == 3)
@@ -706,11 +714,11 @@ namespace Bridge.Contract
                 var name = attr.PositionalArguments[1].ConstantValue;
                 var preventName = attr.PositionalArguments[2].ConstantValue;
 
-                module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype, (bool)preventName);
+                module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype, type.Emitter, (bool)preventName);
             }
             else
             {
-                module = new Module();
+                module = new Module(type.Emitter);
             }
 
             if (attr.NamedArguments.Count > 0)
@@ -751,15 +759,15 @@ namespace Bridge.Contract
 
             if (currentTypeInfo != null && module != null)
             {
-                if(emitter.Tag != "TS" || currentTypeInfo.Module == null || !currentTypeInfo.Module.Equals(module))
+                if (emitter.Tag != "TS" || currentTypeInfo.Module == null || !currentTypeInfo.Module.Equals(module))
                 {
-                    if (!module.PreventModuleName || type.TypeInfo != null)
+                    if (!module.PreventModuleName || (currentTypeInfo.Module != null && currentTypeInfo.Module.Equals(module)))
                     {
                         moduleName = module.ExportAsNamespace;
                     }
 
                     EnsureDependencies(type, emitter, currentTypeInfo, module);
-                }                
+                }
             }
 
             return GetCustomName(name, type, excludeNs, isNested, ref isCustomName, moduleName);
@@ -789,11 +797,11 @@ namespace Bridge.Contract
             if (!emitter.DisableDependencyTracking
                 && currentTypeInfo.Key != type.Key
                 && !Module.Equals(currentTypeInfo.Module, module)
-                && !emitter.CurrentDependencies.Any(d => d.DependencyName == module.Name))
+                && !emitter.CurrentDependencies.Any(d => d.DependencyName == module.OriginalName))
             {
                 emitter.CurrentDependencies.Add(new ModuleDependency
                 {
-                    DependencyName = module.Name,
+                    DependencyName = module.OriginalName,
                     VariableName = module.ExportAsNamespace,
                     Type = module.Type,
                     PreventName = module.PreventModuleName
@@ -987,7 +995,7 @@ namespace Bridge.Contract
             {
                 return "any[]";
             }
-            
+
             if (type.IsKnownType(KnownTypeCode.Byte) ||
                 type.IsKnownType(KnownTypeCode.Char) ||
                 type.IsKnownType(KnownTypeCode.Double) ||

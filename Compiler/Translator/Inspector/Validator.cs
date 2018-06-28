@@ -212,6 +212,19 @@ namespace Bridge.Translator
                 || this.HasAttribute(entity.Attributes, nonScriptableAttr);
         }
 
+        public virtual bool IsBridgeClass(IType type)
+        {
+            foreach (var i in type.GetAllBaseTypes().Where(t => t.Kind == TypeKind.Interface))
+            {
+                if (i.FullName == JS.Types.BRIDGE_IBridgeClass)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public virtual bool IsBridgeClass(TypeDefinition type)
         {
             foreach (var i in type.Interfaces)
@@ -799,19 +812,19 @@ namespace Bridge.Translator
 
                 if (obj is bool)
                 {
-                    module = new Module((bool)obj);
+                    module = new Module((bool)obj, null);
                 }
                 else if (obj is string)
                 {
-                    module = new Module(obj.ToString());
+                    module = new Module(obj.ToString(), null);
                 }
                 else if (obj is int)
                 {
-                    module = new Module("", (ModuleType)(int)obj);
+                    module = new Module("", (ModuleType)(int)obj, null);
                 }
                 else
                 {
-                    module = new Module();
+                    module = new Module(null);
                 }
             }
             else if (attr.ConstructorArguments.Count == 2)
@@ -821,21 +834,21 @@ namespace Bridge.Translator
                     var name = attr.ConstructorArguments[0].Value;
                     var preventName = attr.ConstructorArguments[1].Value;
 
-                    module = new Module(name != null ? name.ToString() : "", (bool)preventName);
+                    module = new Module(name != null ? name.ToString() : "", null, (bool)preventName);
                 }
                 else if (attr.ConstructorArguments[1].Value is bool)
                 {
                     var mtype = attr.ConstructorArguments[0].Value;
                     var preventName = attr.ConstructorArguments[1].Value;
 
-                    module = new Module("", (ModuleType)(int)mtype, (bool)preventName);
+                    module = new Module("", (ModuleType)(int)mtype, null, (bool)preventName);
                 }
                 else
                 {
                     var mtype = attr.ConstructorArguments[0].Value;
                     var name = attr.ConstructorArguments[1].Value;
 
-                    module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype);
+                    module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype, null);
                 }
             }
             else if (attr.ConstructorArguments.Count == 3)
@@ -844,11 +857,11 @@ namespace Bridge.Translator
                 var name = attr.ConstructorArguments[1].Value;
                 var preventName = attr.ConstructorArguments[2].Value;
 
-                module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype, (bool)preventName);
+                module = new Module(name != null ? name.ToString() : "", (ModuleType)(int)mtype, null, (bool)preventName);
             }
             else
             {
-                module = new Module();
+                module = new Module(null);
             }
 
             if (attr.Properties.Count > 0)
@@ -889,6 +902,10 @@ namespace Bridge.Translator
                         {
                             obj = this.GetAttributeArgumentValue(attr, 1);
                             dependency.VariableName = obj is string ? obj.ToString() : "";
+                        }
+                        else
+                        {
+                            dependency.VariableName = Module.EscapeName(dependency.DependencyName);
                         }
 
                         typeInfo.Dependencies.Add(dependency);

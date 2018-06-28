@@ -17,10 +17,17 @@ namespace Bridge.Translator
             var removingUsings = new List<UsingDirectiveSyntax>();
             foreach (var u in unit.Usings)
             {
-                if (u.StaticKeyword.RawKind == (int)SyntaxKind.StaticKeyword)
+                try
                 {
-                    removingUsings.Add(u);
-                }                
+                    if (u.StaticKeyword.RawKind == (int)SyntaxKind.StaticKeyword)
+                    {
+                        removingUsings.Add(u);
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new ReplacerException(u, e);
+                }
             }
 
             return root.RemoveNodes(removingUsings, SyntaxRemoveOptions.KeepDirectives);

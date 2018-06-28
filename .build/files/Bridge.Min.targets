@@ -4,8 +4,10 @@
 
   <PropertyGroup>
     <NoStdLib>True</NoStdLib>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
     <AdditionalExplicitAssemblyReferences />
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <OnWin>false</OnWin>
     <OnWin Condition="'$(OS)' == 'Windows_NT'">true</OnWin>
   </PropertyGroup>

@@ -2,12 +2,11 @@
         statics: {
             getCustomAttributes: function (o, t, b) {
                 if (o == null) {
-                    throw new System.ArgumentNullException("element");
+                    throw new System.ArgumentNullException.$ctor1("element");
                 }
 
-                if (t == null)
-                {
-                    throw new System.ArgumentNullException("attributeType");
+                if (t == null) {
+                    throw new System.ArgumentNullException.$ctor1("attributeType");
                 }
 
                 var r = o.at || [];
@@ -21,15 +20,20 @@
 
             getCustomAttributes$1: function (a, t, b) {
                 if (a == null) {
-                    throw new System.ArgumentNullException("element");
+                    throw new System.ArgumentNullException.$ctor1("element");
                 }
 
-                if (t == null)
-                {
-                    throw new System. ArgumentNullException("attributeType");
+                if (t == null) {
+                    throw new System.ArgumentNullException.$ctor1("attributeType");
                 }
 
                 return a.getCustomAttributes(t || b);
+            },
+
+            isDefined: function (o, t, b) {
+                var attrs = System.Attribute.getCustomAttributes(o, t, b);
+
+                return attrs.length > 0;
             }
         }
     });

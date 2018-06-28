@@ -515,6 +515,11 @@ namespace Bridge.Translator
                     {
                         for (int i = 1; i < map.Count; i++)
                         {
+                            if (map[i] < 0)
+                            {
+                                continue;
+                            }
+
                             result[i - 1] = orig[map[i] - 1];
                         }
                     }
@@ -522,6 +527,11 @@ namespace Bridge.Translator
                     {
                         for (int i = 0; i < map.Count; i++)
                         {
+                            if (map[i] < 0)
+                            {
+                                continue;
+                            }
+
                             result[i] = orig[map[i]];
                         }
                     }
@@ -533,9 +543,9 @@ namespace Bridge.Translator
             catch(Exception e)
             {
                 var fileName = invocationExpression.GetParent<SyntaxTree>()?.FileName;
-                
+
                 this.log.Warn(string.Format("VisitInvocationExpression fails in {0} ({1}): {2}", fileName, invocationExpression.StartLocation.ToString(), e.Message));
-            }            
+            }
 
             return base.VisitInvocationExpression(invocationExpression);
         }

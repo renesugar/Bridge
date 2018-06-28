@@ -237,10 +237,15 @@ namespace Bridge.Translator
             this.Write(name);
         }
 
-        private string[] allowedModifiers = new[] {"default", "defaultFn", "raw", "plain", "body", "gettmp", "version", "tmp", "type", "array", "module", CS.Methods.GETHASHCODE, CS.Methods.TOSTRING };
+        private string[] allowedModifiers = new[] {"default", "defaultFn", "raw", "plain", "body", "gettmp", "version", "tmp", "type", "array", "module", "nobox", CS.Methods.GETHASHCODE, CS.Methods.TOSTRING };
 
         protected virtual void EmitInlineExpressionList(ArgumentsInfo argsInfo, string inline, bool asRef = false, bool isNull = false, bool? definition = null)
         {
+            if (inline != null && inline.Trim().EndsWith(";"))
+            {
+                inline = inline.Trim().TrimEnd(';');
+            }
+
             IMember member = this.Method ?? argsInfo.Method ?? argsInfo.ResolveResult?.Member;
             if (member == null && argsInfo.Expression != null && argsInfo.Expression.Parent != null)
             {
@@ -419,6 +424,7 @@ namespace Bridge.Translator
                 bool isRaw = m.Groups[1].Success && m.Groups[1].Value == "*";
                 bool ignoreArray = isRaw || argsInfo.ParamsExpression == null;
                 string modifier = m.Groups[1].Success ? m.Groups[4].Value : null;
+                this.Emitter.TemplateModifier = modifier;
 
                 bool isSimple = false;
 
@@ -606,7 +612,7 @@ namespace Bridge.Translator
                 }
                 else if (key == "this" || key == argsInfo.ThisName || (key == "0" && argsInfo.IsExtensionMethod))
                 {
-                    if(modifier == CS.Methods.GETHASHCODE || modifier == CS.Methods.TOSTRING)
+                    if (modifier == CS.Methods.GETHASHCODE || modifier == CS.Methods.TOSTRING)
                     {
                         AstNode node = null;
                         if (argsInfo.ThisArgument is AstNode)
@@ -674,7 +680,7 @@ namespace Bridge.Translator
                                     argExpr = ((MemberReferenceExpression)expr.Target).Target;
                                 }
                             }
-                            
+
                             string thisValue = argsInfo.GetThisValue();
                             bool skipType = false;
 
@@ -688,7 +694,7 @@ namespace Bridge.Translator
                                     argExpr.AcceptVisitor(this.Emitter);
                                     thisValue = this.Emitter.Output.ToString();
                                     this.RestoreWriter(writer);
-                                }                                    
+                                }
 
                                 if (thisValue != null)
                                 {
@@ -716,7 +722,7 @@ namespace Bridge.Translator
                             {
                                 isSimple = true;
                                 this.Write(GetTypeName(type));
-                            }                            
+                            }
                         }
                     }
                     else
@@ -1146,6 +1152,7 @@ namespace Bridge.Translator
 
                 string replacement = this.Emitter.Output.ToString();
                 this.Emitter.Output = oldSb;
+                this.Emitter.TemplateModifier = null;
 
                 if (!isSimple && keyMatches.Count(keyMatch =>
                 {

@@ -18,6 +18,68 @@ namespace Bridge.Translator
     /// </summary>
     static internal class SyntaxHelper
     {
+        public static bool IsChildOf(SyntaxNode node, SyntaxNode parent)
+        {
+            return parent.FullSpan.Contains(node.FullSpan);
+        }
+
+        public static bool RequireReturnStatement(SemanticModel model, SyntaxNode lambda)
+        {
+            var typeInfo = model.GetTypeInfo(lambda);
+            var type = typeInfo.ConvertedType ?? typeInfo.Type;
+            if (type == null || !type.IsDelegateType())
+            {
+                return false;
+            }
+                
+            var returnType = type.GetDelegateInvokeMethod().GetReturnType();
+            return returnType != null && returnType.SpecialType != SpecialType.System_Void;
+        }
+
+        public static ITypeSymbol GetReturnType(this ISymbol symbol)
+        {
+            if (symbol == null)
+                throw new ArgumentNullException("symbol");
+            switch (symbol.Kind)
+            {
+                case SymbolKind.Field:
+                    var field = (IFieldSymbol)symbol;
+                    return field.Type;
+                case SymbolKind.Method:
+                    var method = (IMethodSymbol)symbol;
+                    if (method.MethodKind == MethodKind.Constructor)
+                        return method.ContainingType;
+                    return method.ReturnType;
+                case SymbolKind.Property:
+                    var property = (IPropertySymbol)symbol;
+                    return property.Type;
+                case SymbolKind.Event:
+                    var evt = (IEventSymbol)symbol;
+                    return evt.Type;
+                case SymbolKind.Parameter:
+                    var param = (IParameterSymbol)symbol;
+                    return param.Type;
+                case SymbolKind.Local:
+                    var local = (ILocalSymbol)symbol;
+                    return local.Type;
+            }
+            return null;
+        }
+
+        public static bool IsDelegateType(this ITypeSymbol symbol)
+        {
+            return symbol?.TypeKind == TypeKind.Delegate;
+        }
+
+        public static IMethodSymbol GetDelegateInvokeMethod(this ITypeSymbol type)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+            if (type.TypeKind == TypeKind.Delegate)
+                return type.GetMembers("Invoke").OfType<IMethodSymbol>().FirstOrDefault(m => m.MethodKind == MethodKind.DelegateInvoke);
+            return null;
+        }
+
         /// <summary>
         /// Generates the static method call.
         /// </summary>
@@ -30,10 +92,34 @@ namespace Bridge.Translator
             );
         }
 
+        public static InvocationExpressionSyntax GenerateInvocation(string methodName, string targetIdentifier, ArgumentSyntax[] arguments = null, ITypeSymbol[] typeArguments = null)
+        {
+            var methodIdentifier = GenerateMethodIdentifier(methodName, targetIdentifier, typeArguments);
+            return SyntaxFactory.InvocationExpression(methodIdentifier, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments ?? new ArgumentSyntax[] { })));
+        }
+
+        public static InvocationExpressionSyntax GenerateInvocation(string methodName, ExpressionSyntax targetIdentifier, ArgumentSyntax[] arguments = null, ITypeSymbol[] typeArguments = null)
+        {
+            var methodIdentifier = GenerateMethodIdentifier(methodName, targetIdentifier, typeArguments);
+            return SyntaxFactory.InvocationExpression(methodIdentifier, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments ?? new ArgumentSyntax[] { })));
+        }
+
         /// <summary>
         /// Generates the method call.
         /// </summary>
         public static ExpressionStatementSyntax GenerateMethodCall(string methodName, string targetIdentifier, ArgumentSyntax[] arguments = null, ITypeSymbol[] typeArguments = null)
+        {
+            var methodIdentifier = GenerateMethodIdentifier(methodName, targetIdentifier, typeArguments);
+            return SyntaxFactory.ExpressionStatement(
+                SyntaxFactory.InvocationExpression(methodIdentifier,
+                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments ?? new ArgumentSyntax[] { })))
+            );
+        }
+
+        /// <summary>
+        /// Generates the method call.
+        /// </summary>
+        public static ExpressionStatementSyntax GenerateMethodCall(string methodName, ExpressionSyntax targetIdentifier, ArgumentSyntax[] arguments = null, ITypeSymbol[] typeArguments = null)
         {
             var methodIdentifier = GenerateMethodIdentifier(methodName, targetIdentifier, typeArguments);
             return SyntaxFactory.ExpressionStatement(
@@ -54,6 +140,14 @@ namespace Bridge.Translator
                     SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(typeArguments.Select(GenerateTypeSyntax))));
             }
             return methodIdentifier;
+        }
+
+        /// <summary>
+        /// Generates the method identifier.
+        /// </summary>
+        public static ExpressionSyntax GenerateMethodIdentifier(string methodName, ExpressionSyntax targetIdentifierOrTypeName, ITypeSymbol[] typeArguments = null)
+        {
+            return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, targetIdentifierOrTypeName, SyntaxFactory.IdentifierName(methodName));
         }
 
         /// <summary>
@@ -187,6 +281,11 @@ namespace Bridge.Translator
         public static TypeSyntax GenerateTypeSyntax(ITypeSymbol type)
         {
             return SyntaxFactory.IdentifierName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).WithoutTrivia();
+        }
+
+        public static TypeSyntax GenerateTypeSyntax(ITypeSymbol type, SemanticModel model, int pos)
+        {
+            return SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(model, pos));
         }
 
         /// <summary>
@@ -566,6 +665,38 @@ namespace Bridge.Translator
                          .WithTrailingTrivia(method.GetTrailingTrivia());
         }
 
+        public static ConstructorDeclarationSyntax ToStatementBody(ConstructorDeclarationSyntax method)
+        {
+            var body = method.ExpressionBody.Expression.WithLeadingTrivia(SyntaxFactory.Space);
+
+            return method.WithBody(SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(body)))
+                         .WithExpressionBody(null)
+                         .WithSemicolonToken(SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken))
+                         .WithTrailingTrivia(method.GetTrailingTrivia());
+        }
+
+        public static DestructorDeclarationSyntax ToStatementBody(DestructorDeclarationSyntax method)
+        {
+            var body = method.ExpressionBody.Expression.WithLeadingTrivia(SyntaxFactory.Space);
+
+            return method.WithBody(SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(body)))
+                         .WithExpressionBody(null)
+                         .WithSemicolonToken(SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken))
+                         .WithTrailingTrivia(method.GetTrailingTrivia());
+        }
+
+        public static AccessorDeclarationSyntax ToStatementBody(AccessorDeclarationSyntax method)
+        {
+            var needReturn = method.Keyword.Kind() == SyntaxKind.GetKeyword;
+
+            var body = method.ExpressionBody.Expression.WithLeadingTrivia(SyntaxFactory.Space);
+
+            return method.WithBody(SyntaxFactory.Block(needReturn ? (StatementSyntax)SyntaxFactory.ReturnStatement(body) : SyntaxFactory.ExpressionStatement(body)))
+                         .WithExpressionBody(null)
+                         .WithSemicolonToken(SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken))
+                         .WithTrailingTrivia(method.GetTrailingTrivia());
+        }
+
         public static OperatorDeclarationSyntax ToStatementBody(OperatorDeclarationSyntax method)
         {
             var isVoid = false;
@@ -721,7 +852,7 @@ namespace Bridge.Translator
                     return true;
                 }
 
-                var value = (int) attr.ConstructorArguments[0].Value;
+                var value = (int)attr.ConstructorArguments[0].Value;
 
                 switch (value)
                 {

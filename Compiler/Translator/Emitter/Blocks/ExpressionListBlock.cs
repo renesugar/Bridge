@@ -126,10 +126,14 @@ namespace Bridge.Translator
                         }
 
                         var pos = this.OpenBracketPosition;
-                        this.Emitter.Output.Insert(pos, "." + JS.Funcs.APPLY);
-                        pos += 7;
 
-                        this.Emitter.Output.Insert(pos, scope + ", " + (needConcat ? "[" : ""));
+                        if (pos > -1)
+                        {
+                            this.Emitter.Output.Insert(pos, "." + JS.Funcs.APPLY);
+                            pos += 7;
+
+                            this.Emitter.Output.Insert(pos, scope + ", " + (needConcat ? "[" : ""));
+                        }                        
                     }
 
                     isApply = needConcat;
@@ -172,19 +176,26 @@ namespace Bridge.Translator
 
                     if (byReferenceResolveResult != null && !(byReferenceResolveResult.ElementResult is LocalResolveResult))
                     {
-                        this.Write(JS.Funcs.BRIDGE_REF + "(");
-
-                        this.Emitter.IsRefArg = true;
-                        expr.AcceptVisitor(this.Emitter);
-                        this.Emitter.IsRefArg = false;
-
-                        if (this.Emitter.Writers.Count != count)
-                        {
-                            this.PopWriter();
-                            count = this.Emitter.Writers.Count;
+                        if (byReferenceResolveResult.ElementResult is MemberResolveResult mr && mr.Member.FullName == "Bridge.Ref.Value" && directExpr.Expression is MemberReferenceExpression mre)
+                        {                            
+                            mre.Target.AcceptVisitor(this.Emitter);
                         }
+                        else
+                        {
+                            this.Write(JS.Funcs.BRIDGE_REF + "(");
 
-                        this.Write(")");
+                            this.Emitter.IsRefArg = true;
+                            expr.AcceptVisitor(this.Emitter);
+                            this.Emitter.IsRefArg = false;
+
+                            if (this.Emitter.Writers.Count != count)
+                            {
+                                this.PopWriter();
+                                count = this.Emitter.Writers.Count;
+                            }
+
+                            this.Write(")");
+                        }                       
 
                         continue;
                     }

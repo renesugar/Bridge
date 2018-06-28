@@ -1,19 +1,19 @@
-using Bridge;
-
 namespace System.Threading
 {
-    [External]
-    [Reflectable]
+    [Bridge.Convention(Member = Bridge.ConventionMember.Field | Bridge.ConventionMember.Method, Notation = Bridge.Notation.CamelCase)]
+    [Bridge.External]
+    [Bridge.Reflectable]
     public struct CancellationTokenRegistration : IEquatable<CancellationTokenRegistration>, IDisposable
     {
+        [Bridge.Convention(Bridge.Notation.CamelCase)]
         public extern bool Equals(CancellationTokenRegistration other);
 
         public extern void Dispose();
 
-        [Template("Bridge.equals({left}, {right})")]
+        [Bridge.Template("Bridge.equals({left}, {right})")]
         public static extern bool operator ==(CancellationTokenRegistration left, CancellationTokenRegistration right);
 
-        [Template("!Bridge.equals({left}, {right})")]
+        [Bridge.Template("!Bridge.equals({left}, {right})")]
         public static extern bool operator !=(CancellationTokenRegistration left, CancellationTokenRegistration right);
     }
 }

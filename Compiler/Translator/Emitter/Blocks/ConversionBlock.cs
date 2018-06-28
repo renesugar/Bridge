@@ -385,7 +385,7 @@ namespace Bridge.Translator
                                      && !(memberDeclaringTypeDefinition.Namespace == CS.NS.SYSTEM || memberDeclaringTypeDefinition.Namespace.StartsWith(CS.NS.SYSTEM + "."));
 
                         var attr = parent_rr.Member.Attributes.FirstOrDefault(a => a.AttributeType.FullName == "Bridge.UnboxAttribute");
-                         
+
                         if (attr != null)
                         {
                             isArgument = (bool)attr.PositionalArguments.First().ConstantValue;
@@ -402,6 +402,7 @@ namespace Bridge.Translator
                     }
                 }
 
+                var nobox = block.Emitter.TemplateModifier == "nobox";
                 var isStringConcat = false;
                 var binaryOperatorExpression = expression.Parent as BinaryOperatorExpression;
                 if (binaryOperatorExpression != null)
@@ -418,7 +419,7 @@ namespace Bridge.Translator
 
                 if (conversion.IsBoxingConversion && !isStringConcat && block.Emitter.Rules.Boxing == BoxingRule.Managed)
                 {
-                    if (needBox && !isArgument)
+                    if (!nobox && needBox && !isArgument)
                     {
                         block.Write(JS.Types.Bridge.BOX);
                         block.WriteOpenParentheses();
@@ -447,7 +448,7 @@ namespace Bridge.Translator
                             block.Emitter.ForbidLifting = true;
                         }
                     }
-                    else  if(!Helpers.IsImmutableStruct(block.Emitter, NullableType.GetUnderlyingType(rr.Type)))
+                    else  if (!Helpers.IsImmutableStruct(block.Emitter, NullableType.GetUnderlyingType(rr.Type)))
                     {
                         if (nullable)
                         {
@@ -463,12 +464,12 @@ namespace Bridge.Translator
 
                 if (conversion.IsUnboxingConversion || isArgument && (expectedType.IsKnownType(KnownTypeCode.Object) || ConversionBlock.IsUnpackArrayObject(expectedType)) && (rr.Type.IsKnownType(KnownTypeCode.Object) || ConversionBlock.IsUnpackGenericInterfaceObject(rr.Type) || ConversionBlock.IsUnpackGenericArrayInterfaceObject(rr.Type)))
                 {
-                    if (block.Emitter.Rules.Boxing == BoxingRule.Managed)
+                    if (!nobox && block.Emitter.Rules.Boxing == BoxingRule.Managed)
                     {
                         block.Write(JS.Types.Bridge.UNBOX);
                         block.WriteOpenParentheses();
                         block.AfterOutput2 += ")";
-                    }                    
+                    }
                 }
                 else if (conversion.IsUnboxingConversion && !Helpers.IsImmutableStruct(block.Emitter, NullableType.GetUnderlyingType(rr.Type)))
                 {

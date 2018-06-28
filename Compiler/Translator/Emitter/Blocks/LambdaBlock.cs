@@ -234,11 +234,11 @@ namespace Bridge.Translator
             var noLiftingRule = this.Emitter.Rules.Lambda == LambdaRule.Plain;
             CaptureAnalyzer analyzer = null;
 
-            if(!noLiftingRule)
+            if (!noLiftingRule)
             {
                 analyzer = new CaptureAnalyzer(this.Emitter);
                 analyzer.Analyze(this.Body, this.Parameters.Select(p => p.Name));
-            }            
+            }
 
             var oldLevel = this.Emitter.Level;
             if (!noLiftingRule && analyzer.UsedVariables.Count == 0)
@@ -247,7 +247,7 @@ namespace Bridge.Translator
                 Indent();
             }
 
-            AsyncBlock asyncBlock = null;
+            IAsyncBlock asyncBlock = null;
             this.PushLocals();
 
             if (this.IsAsync)
@@ -259,6 +259,20 @@ namespace Bridge.Translator
                 else
                 {
                     asyncBlock = new AsyncBlock(this.Emitter, (AnonymousMethodExpression)context);
+                }
+
+                asyncBlock.InitAsyncBlock();
+            }
+            else if (YieldBlock.HasYield(body))
+            {
+                this.IsAsync = true;
+                if (context is LambdaExpression)
+                {
+                    asyncBlock = new GeneratorBlock(this.Emitter, (LambdaExpression)context);
+                }
+                else
+                {
+                    asyncBlock = new GeneratorBlock(this.Emitter, (AnonymousMethodExpression)context);
                 }
 
                 asyncBlock.InitAsyncBlock();
